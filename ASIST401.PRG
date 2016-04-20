@@ -90,6 +90,7 @@ FUNCTION Asist_401(lShared,nModCry,cNomSis,cEmpPal,cNitEmp,;
        LOCAL Getlist := {}                  // Variable del sistema
      *ÀVariables espec¡ficas
 
+       LOCAL cCodigoTta := ''               // Tipo de Ausencia
        LOCAL cCodigoTes := ''               // C¢digo del Estudiante
        LOCAL cNombreTes := ''               // Nombre del Estudiante
        LOCAL cNombreThr := ''               // Descripci¢n de la Hora
@@ -173,6 +174,20 @@ FUNCTION Asist_401(lShared,nModCry,cNomSis,cEmpPal,cNitEmp,;
        ENDIF
 *>>>>FIN LOCALIZACION DE LA IMPRESORA
 
+*>>>>CAPTURA DEL CODIGO
+       cCodigoTta := cSpaces('TAU','cCodigoTau')
+       @ nFilInf+1,nColInf SAY 'NOVEDAD' GET cCodigoTta PICT '@!';
+			       VALID lValTipoA(ROW(),COL()-3,@cCodigoTta)
+       READ
+       IF !lPregunta('ESCOGIO '+;
+		     IF(EMPTY(cCodigoTta),'TODOS LOS TIPOS',;
+				       ALLTRIM(TAU->cNombreTau))+;
+		     '.DESEA CONTINUAR? Si No')
+	  CloseAll(aUseDbf)
+	  RETURN NIL
+       ENDIF
+*>>>>FIN CAPTURA DEL CODIGO
+
 *>>>>LECTURA DEL INTERVALO DE FECHAS
        dFecIni := CTOD('00/00/00')
        dFecFin := CTOD('00/00/00')
@@ -243,7 +258,7 @@ FUNCTION Asist_401(lShared,nModCry,cNomSis,cEmpPal,cNitEmp,;
 	  SET DEVICE TO PRINT
        ELSE
 	  FilePrn := 'novasit'
-	  nOpcPrn := nPrinter_On(cNomUsr,@FilePrn,SAS->cOpcPrnAsi,.F.,.F.)
+	  nOpcPrn := nPrinter_On(cNomUsr,@FilePrn,SAS->cOpcPrnAsi,.F.,.F.,,PathDoc)
 	  IF EMPTY(nOpcPrn)
 	     RETURN NIL
 	  ENDIF
@@ -328,6 +343,15 @@ FUNCTION Asist_401(lShared,nModCry,cNomSis,cEmpPal,cNitEmp,;
 			 cNombreThr := HRA->cNombreHra
 		      ENDIF
 *...................FIN LOCALIZACION DE LA HORA
+
+*...................VALIDACION DEL TIPO DE AUSENCIA
+		      IF !EMPTY(cCodigoTta)
+			 IF cCodigoTta # ASI->cCodigoTau
+			    ASI->(DBSKIP())
+			    LOOP
+			 ENDIF
+		      ENDIF
+*...................FIN VALIDACION DEL TIPO DE AUSENCIA
 
 *...................LOCALIZACION DEL TIPO DE AUSENCIA
 		      cNombreTta := ASI->cCodigoTau

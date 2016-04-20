@@ -1529,3 +1529,79 @@ FUNCTION lParam0108(aParams,;
        ENDIF
        RETURN !lHayErr
 *>>>>FIN DETALLES ACADEMICOS
+
+/*************************************************************************
+* TITULO DE LA FUNCION..: APERTURA DE LOS ARCHIVOS DE GRUPOS             *
+**************************************************************************
+
+AUTOR: Nelson Fern ndez G¢mez       FECHA DE CREACION: FEB 02/96 VIE A
+       Colombia, Bucaramanga        INICIO: 11:50 PM   FEB 02/96 VIE
+
+OBJETIVOS:
+
+1)- Pone en uso los archivos de grupos
+
+2)- Retorna por referencia los param‚tros de la funci¢n marcados con @
+
+3)- Retorna .T. si no se presentaron problemas
+
+SINTAXIS:
+
+*------------------------------------------------------------------------*
+*                              PROGRAMA                                  *
+*------------------------------------------------------------------------*/
+
+FUNCTION lUseGru(lShared,cPatSis,cMaeAlu,cAnoSis,lAnoAct)
+
+*>>>>PARAMETROS DE LA FUNCION
+/*     lShared                              // .T. Compartir Archivos
+       cPatSis			            // Path del Sistema
+       cMaeAlu                              // Maestros habilitados
+       cAnoSis                              // A¤o del sistema
+       lAnoAct                              // .F. A¤o Anteriores */
+*>>>>FIN PARAMETROS DE LA FUNCION
+
+*>>>>DECLARACION DE VARIABLES
+       #INCLUDE "ARC-CART.PRG"      // Archivos del Sistema
+
+       LOCAL lHayErr := .F.                // .T. Hay Error
+       LOCAL PathGru := ''                 // Path del Grupo
+*>>>>FIN DECLARACION DE VARIABLES
+
+*>>>>SELECION DE LAS AREAS DE TRABAJO
+       lAnoAct := IF(lAnoAct == NIL,.T.,lAnoAct)
+
+       IF 'JAR' $ cMaeAlu
+
+	  PathGru := cPatSis+'\JAR\'
+	  IF !lUseDbf(.T.,PathGru+FGruJar+cAnoSis+ExtFile,;
+			  IF(lAnoAct,'GRU','GRU'),NIL,lShared)
+	     cError('ABRIENDO ARCHIVOS DE JARDIN EN '+PathGru)
+	     CloseAll()
+	     RETURN .F.
+	  ENDIF
+       ENDIF
+
+       IF 'PRI' $ cMaeAlu
+
+	  PathGru := cPatSis+'\PRI\'
+	  IF !lUseDbf(.T.,PathGru+FGruPri+cAnoSis+ExtFile,;
+			  IF(lAnoAct,'GRU','GRU'),NIL,lShared)
+	     cError('ABRIENDO ARCHIVOS DE PRIMARIA EN '+PathGru)
+	     CloseAll()
+	     RETURN .F.
+	  ENDIF
+       ENDIF
+
+       IF 'BTO' $ cMaeAlu
+
+	  PathGru := cPatSis+'\BTO\'
+	  IF !lUseDbf(.T.,PathGru+FGruBto+cAnoSis+ExtFile,;
+			  IF(lAnoAct,'GRU','GRU'),NIL,lShared)
+	     cError('ABRIENDO ARCHIVOS DE BACHILLERATO EN '+PathGru)
+	     CloseAll()
+	     RETURN .F.
+	  ENDIF
+       ENDIF
+       RETURN .T.
+*>>>>FIN SELECION DE LAS AREAS DE TRABAJO
